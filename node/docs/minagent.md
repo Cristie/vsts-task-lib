@@ -25,8 +25,7 @@ Use the details below to determine when specific agent features were added:
   - `prejobexecution` and `postjobexecution` handler sections were added in 2.115.0
 * `node` handler
   - Added in 1.95.1. Used node v5.10.1.
-  - Updated in 2.117.0 to use node v6.10.3
-  - Updated in 2.117.0. Previously used v5.10.1
+  - Updated in 2.117.0 to use node v6.10.3.
 * `powershell3` handler
   - Added in 1.95.1
   - Updated in 1.97 to propagate `Data` property for endpoints
@@ -48,6 +47,7 @@ The following chart details the agent versions that shipped with each on-premise
 
 | Agent   | TFS               |
 |---------|-------------------|
+| 2.122.1 | TFS 2017 Update 3 |
 | 2.117.x | TFS 2017 Update 2 |
 | 2.112.0 | TFS 2017 Update 1 |
 | 2.105.7 | TFS 2017 RTM      |

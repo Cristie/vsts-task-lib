@@ -1,26 +1,30 @@
-# Commands (v0.9.0)
+# Commands (v0.11.0)
 ## <a name="toc" />Table of Contents
- * [Find](#find)
+* [Find](#find)
   * [Find-VstsMatch](#find-vstsmatch)
   * [New-VstsFindOptions](#new-vstsfindoptions)
   * [New-VstsMatchOptions](#new-vstsmatchoptions)
   * [Select-VstsMatch](#select-vstsmatch)
- * [Input](#input)
+* [Input](#input)
   * [Get-VstsEndpoint](#get-vstsendpoint)
   * [Get-VstsInput](#get-vstsinput)
+  * [Get-VstsSecureFileName](#get-vstssecurefilename)
+  * [Get-VstsSecureFileTicket](#get-vstssecurefileticket)
   * [Get-VstsTaskVariable](#get-vststaskvariable)
   * [Get-VstsTaskVariableInfo](#get-vststaskvariableinfo)
   * [Set-VstsTaskVariable](#set-vststaskvariable)
- * [Legacy Find](#legacyfind)
+* [Legacy Find](#legacyfind)
   * [Find-VstsFiles](#find-vstsfiles)
- * [Localization](#localization)
+* [Localization](#localization)
   * [Get-VstsLocString](#get-vstslocstring)
   * [Import-VstsLocStrings](#import-vstslocstrings)
- * [Logging Command](#loggingcommand)
+* [Logging Command](#loggingcommand)
   * [Write-VstsAddAttachment](#write-vstsaddattachment)
   * [Write-VstsAddBuildTag](#write-vstsaddbuildtag)
   * [Write-VstsAssociateArtifact](#write-vstsassociateartifact)
   * [Write-VstsLogDetail](#write-vstslogdetail)
+  * [Write-VstsPrependPath](#write-vstsprependpath)
+  * [Write-VstsSetEndpoint](#write-vstssetendpoint)
   * [Write-VstsSetProgress](#write-vstssetprogress)
   * [Write-VstsSetResult](#write-vstssetresult)
   * [Write-VstsSetSecret](#write-vstssetsecret)
@@ -30,20 +34,24 @@
   * [Write-VstsTaskVerbose](#write-vststaskverbose)
   * [Write-VstsTaskWarning](#write-vststaskwarning)
   * [Write-VstsUpdateBuildNumber](#write-vstsupdatebuildnumber)
+  * [Write-VstsUpdateReleaseName](#write-vstsupdatereleasename)
   * [Write-VstsUploadArtifact](#write-vstsuploadartifact)
   * [Write-VstsUploadBuildLog](#write-vstsuploadbuildlog)
- * [Server OM](#serverom)
+  * [Write-VstsUploadFile](#write-vstsuploadfile)
+  * [Write-VstsUploadSummary](#write-vstsuploadsummary)
+* [Server OM](#serverom)
   * [Get-VstsAssemblyReference](#get-vstsassemblyreference)
+  * [Get-VstsClientCertificate](#get-vstsclientcertificate)
   * [Get-VstsTfsClientCredentials](#get-vststfsclientcredentials)
   * [Get-VstsTfsService](#get-vststfsservice)
   * [Get-VstsVssCredentials](#get-vstsvsscredentials)
   * [Get-VstsVssHttpClient](#get-vstsvsshttpclient)
   * [Get-VstsWebProxy](#get-vstswebproxy)
- * [Tool](#tool)
+* [Tool](#tool)
   * [Assert-VstsAgent](#assert-vstsagent)
   * [Assert-VstsPath](#assert-vstspath)
   * [Invoke-VstsTool](#invoke-vststool)
- * [Trace](#trace)
+* [Trace](#trace)
   * [Trace-VstsEnteringInvocation](#trace-vstsenteringinvocation)
   * [Trace-VstsLeavingInvocation](#trace-vstsleavinginvocation)
   * [Trace-VstsPath](#trace-vstspath)
@@ -151,6 +159,36 @@ SYNTAX
 
 DESCRIPTION
     Gets the value for the specified input name.
+```
+### <a name="get-vstssecurefilename" />Get-VstsSecureFileName
+[table of contents](#toc) | [full](FullHelp/Get-VstsSecureFileName.md)
+```
+NAME
+    Get-VstsSecureFileName
+
+SYNOPSIS
+    Gets a secure file name.
+
+SYNTAX
+    Get-VstsSecureFileName [-Id] <String> [-Require] [<CommonParameters>]
+
+DESCRIPTION
+    Gets the name for a secure file.
+```
+### <a name="get-vstssecurefileticket" />Get-VstsSecureFileTicket
+[table of contents](#toc) | [full](FullHelp/Get-VstsSecureFileTicket.md)
+```
+NAME
+    Get-VstsSecureFileTicket
+
+SYNOPSIS
+    Gets a secure file ticket.
+
+SYNTAX
+    Get-VstsSecureFileTicket [-Id] <String> [-Require] [<CommonParameters>]
+
+DESCRIPTION
+    Gets the secure file ticket that can be used to download the secure file contents.
 ```
 ### <a name="get-vststaskvariable" />Get-VstsTaskVariable
 [table of contents](#toc) | [full](FullHelp/Get-VstsTaskVariable.md)
@@ -326,6 +364,31 @@ SYNTAX
     <Object>] [[-StartTime] <Object>] [[-FinishTime] <Object>] [[-Progress] <Object>] [[-State] <Object>]
     [[-Result] <Object>] [[-Message] <String>] [-AsOutput] [<CommonParameters>]
 ```
+### <a name="write-vstsprependpath" />Write-VstsPrependPath
+[table of contents](#toc) | [full](FullHelp/Write-VstsPrependPath.md)
+```
+NAME
+    Write-VstsPrependPath
+
+SYNOPSIS
+    See https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md
+
+SYNTAX
+    Write-VstsPrependPath [-Path] <String> [-AsOutput] [<CommonParameters>]
+```
+### <a name="write-vstssetendpoint" />Write-VstsSetEndpoint
+[table of contents](#toc) | [full](FullHelp/Write-VstsSetEndpoint.md)
+```
+NAME
+    Write-VstsSetEndpoint
+
+SYNOPSIS
+    See https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md
+
+SYNTAX
+    Write-VstsSetEndpoint [-Id] <String> [-Field] <String> [-Key] <String> [-Value] <String> [-AsOutput]
+    [<CommonParameters>]
+```
 ### <a name="write-vstssetprogress" />Write-VstsSetProgress
 [table of contents](#toc) | [full](FullHelp/Write-VstsSetProgress.md)
 ```
@@ -438,6 +501,18 @@ SYNOPSIS
 SYNTAX
     Write-VstsUpdateBuildNumber [-Value] <String> [-AsOutput] [<CommonParameters>]
 ```
+### <a name="write-vstsupdatereleasename" />Write-VstsUpdateReleaseName
+[table of contents](#toc) | [full](FullHelp/Write-VstsUpdateReleaseName.md)
+```
+NAME
+    Write-VstsUpdateReleaseName
+
+SYNOPSIS
+    See https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md
+
+SYNTAX
+    Write-VstsUpdateReleaseName [-Name] <String> [-AsOutput] [<CommonParameters>]
+```
 ### <a name="write-vstsuploadartifact" />Write-VstsUploadArtifact
 [table of contents](#toc) | [full](FullHelp/Write-VstsUploadArtifact.md)
 ```
@@ -463,6 +538,30 @@ SYNOPSIS
 SYNTAX
     Write-VstsUploadBuildLog [-Path] <String> [-AsOutput] [<CommonParameters>]
 ```
+### <a name="write-vstsuploadfile" />Write-VstsUploadFile
+[table of contents](#toc) | [full](FullHelp/Write-VstsUploadFile.md)
+```
+NAME
+    Write-VstsUploadFile
+
+SYNOPSIS
+    See https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md
+
+SYNTAX
+    Write-VstsUploadFile [-Path] <String> [-AsOutput] [<CommonParameters>]
+```
+### <a name="write-vstsuploadsummary" />Write-VstsUploadSummary
+[table of contents](#toc) | [full](FullHelp/Write-VstsUploadSummary.md)
+```
+NAME
+    Write-VstsUploadSummary
+
+SYNOPSIS
+    See https://github.com/Microsoft/vsts-tasks/blob/master/docs/authoring/commands.md
+
+SYNTAX
+    Write-VstsUploadSummary [-Path] <String> [-AsOutput] [<CommonParameters>]
+```
 ## <a name="serverom" />Server OM
 ### <a name="get-vstsassemblyreference" />Get-VstsAssemblyReference
 [table of contents](#toc) | [full](FullHelp/Get-VstsAssemblyReference.md)
@@ -477,9 +576,9 @@ SYNTAX
     Get-VstsAssemblyReference [-LiteralPath] <String> [<CommonParameters>]
 
 DESCRIPTION
-    Not supported for use during task exection. This function is only intended to help developers resolve the
-    minimal set of DLLs that need to be bundled when consuming the VSTS REST SDK or TFS Extended Client SDK.
-    The interface and output may change between patch releases of the VSTS Task SDK.
+    Not supported for use during task execution. This function is only intended to help developers resolve
+    the minimal set of DLLs that need to be bundled when consuming the VSTS REST SDK or TFS Extended Client
+    SDK. The interface and output may change between patch releases of the VSTS Task SDK.
 
     Only a subset of the referenced assemblies may actually be required, depending on the functionality used
     by your task. It is best to bundle only the DLLs required for your scenario.
@@ -490,6 +589,21 @@ DESCRIPTION
 
     See https://github.com/Microsoft/vsts-task-lib/tree/master/powershell/Docs/UsingOM.md for reliable usage
     when working with the TFS extended client SDK from a task.
+```
+### <a name="get-vstsclientcertificate" />Get-VstsClientCertificate
+[table of contents](#toc) | [full](FullHelp/Get-VstsClientCertificate.md)
+```
+NAME
+    Get-VstsClientCertificate
+
+SYNOPSIS
+    Gets a client certificate for current connected TFS instance
+
+SYNTAX
+    Get-VstsClientCertificate [<CommonParameters>]
+
+DESCRIPTION
+    Gets an instance of a X509Certificate2 that is the client certificate Build/Release agent used.
 ```
 ### <a name="get-vststfsclientcredentials" />Get-VstsTfsClientCredentials
 [table of contents](#toc) | [full](FullHelp/Get-VstsTfsClientCredentials.md)
@@ -568,7 +682,7 @@ SYNOPSIS
 
 SYNTAX
     Get-VstsVssHttpClient [-TypeName] <String> [[-OMDirectory] <String>] [[-Uri] <String>] [[-VssCredentials]
-    <Object>] [[-WebProxy] <Object>] [<CommonParameters>]
+    <Object>] [[-WebProxy] <Object>] [[-ClientCert] <Object>] [-IgnoreSslError] [<CommonParameters>]
 
 DESCRIPTION
     Gets an instance of an VSS HTTP client.

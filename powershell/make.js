@@ -28,7 +28,7 @@ target.build = function() {
     var minimatchPackage = util.downloadArchive('https://www.nuget.org/api/v2/package/minimatch/1.1.0');
     util.cp(path.join(minimatchPackage, 'lib', 'portable-net40%2Bsl50%2Bwin%2Bwp80', 'Minimatch.dll'), path.join(buildPath, 'VstsTaskSdk'));
 
-    var compiledHelperPackage = util.downloadArchive('https://vstsagenttools.blob.core.windows.net/tools/VstsTaskSdkCompiledHelpers/2/VstsTaskSdk.zip');
+    var compiledHelperPackage = util.downloadArchive('https://vstsagenttools.blob.core.windows.net/tools/VstsTaskSdkCompiledHelpers/3/VstsTaskSdk.zip');
     util.cp(path.join(compiledHelperPackage, 'VstsTaskSdk.dll'), path.join(buildPath, 'VstsTaskSdk'));
 
     // stamp the version number from the package.json onto the PowerShell module definition
@@ -66,10 +66,10 @@ target.test = function() {
     target.build();
 
     util.mkdir('-p', testPath);
-    util.run(`tsc --outDir ${testPath} --module commonjs --rootDir Tests Tests/lib/psRunner.ts`);
-    util.run(`tsc --outDir ${testPath} --rootDir Tests Tests/L0/_suite.ts`);
+    util.run(`tsc --outDir "${testPath}" --module commonjs --rootDir Tests Tests/lib/psRunner.ts`);
+    util.run(`tsc --outDir "${testPath}" --rootDir Tests Tests/L0/_suite.ts`);
     util.cp('-r', path.join('Tests', '*'), testPath);
-    util.run('mocha ' + path.join(testPath, 'L0', '_suite.js'));
+    util.run('mocha "' + path.join(testPath, 'L0', '_suite.js') + '"');
 }
 
 target.loc = function() {

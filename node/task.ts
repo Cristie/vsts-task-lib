@@ -114,7 +114,7 @@ export function getVariables(): VariableInfo[] {
  * 
  * @param     name    name of the variable to set
  * @param     val     value to set
- * @param     secret  whether variable is secret.  optional, defaults to false
+ * @param     secret  whether variable is secret.  Multi-line secrets are not allowed.  Optional, defaults to false
  * @returns   void
  */
 export function setVariable(name: string, val: string, secret: boolean = false): void {
@@ -128,6 +128,10 @@ export function setVariable(name: string, val: string, secret: boolean = false):
     let varValue = val || '';
     debug('set ' + name + '=' + (secret && varValue ? '********' : varValue));
     if (secret) {
+        if (varValue && varValue.match(/\r|\n/) && `${process.env['SYSTEM_UNSAFEALLOWMULTILINESECRET']}`.toUpperCase() != 'TRUE') {
+            throw new Error(loc('LIB_MultilineSecret'));
+        }
+
         im._vault.storeSecret('SECRET_' + key, varValue);
         delete process.env[key];
     } else {
@@ -139,6 +143,20 @@ export function setVariable(name: string, val: string, secret: boolean = false):
 
     // write the command
     command('task.setvariable', { 'variable': name || '', 'issecret': (secret || false).toString() }, varValue);
+}
+
+/**
+ * Registers a value with the logger, so the value will be masked from the logs.  Multi-line secrets are not allowed.
+ *
+ * @param val value to register
+ */
+export function setSecret(val: string): void {
+    if (val) {
+        if (val.match(/\r|\n/) && `${process.env['SYSTEM_UNSAFEALLOWMULTILINESECRET']}`.toUpperCase() !== 'TRUE') {
+            throw new Error(loc('LIB_MultilineSecret'));
+        }
+        command('task.setsecret', {}, val);
+    }
 }
 
 /** Snapshot of a variable at the time when getVariables was called. */
@@ -700,6 +718,12 @@ export function mv(source: string, dest: string, options?: string, continueOnErr
  * Contains properties to control whether to follow symlinks
  */
 export interface FindOptions {
+
+    /**
+     * When true, broken symbolic link will not cause an error.
+     */
+    allowBrokenSymbolicLinks: boolean,
+
     /**
      * Equivalent to the -H command line option. Indicates whether to traverse descendants if
      * the specified path is a symbolic link directory. Does not cause nested symbolic link
@@ -767,12 +791,36 @@ export function find(findPath: string, options?: FindOptions): string[] {
             // lstat returns info about a symlink itself
             let stats: fs.Stats;
             if (options.followSymbolicLinks) {
-                // use stat (following all symlinks)
-                stats = fs.statSync(item.path);
+                try {
+                    // use stat (following all symlinks)
+                    stats = fs.statSync(item.path);
+                }
+                catch (err) {
+                    if (err.code == 'ENOENT' && options.allowBrokenSymbolicLinks) {
+                        // fallback to lstat (broken symlinks allowed)
+                        stats = fs.lstatSync(item.path);
+                        debug(`  ${item.path} (broken symlink)`);
+                    }
+                    else {
+                        throw err;
+                    }
+                }
             }
             else if (options.followSpecifiedSymbolicLink && result.length == 1) {
-                // use stat (following symlinks for the specified path and this is the specified path)
-                stats = fs.statSync(item.path);
+                try {
+                    // use stat (following symlinks for the specified path and this is the specified path)
+                    stats = fs.statSync(item.path);
+                }
+                catch (err) {
+                    if (err.code == 'ENOENT' && options.allowBrokenSymbolicLinks) {
+                        // fallback to lstat (broken symlinks allowed)
+                        stats = fs.lstatSync(item.path);
+                        debug(`  ${item.path} (broken symlink)`);
+                    }
+                    else {
+                        throw err;
+                    }
+                }
             }
             else {
                 // use lstat (not following symlinks)
@@ -833,12 +881,14 @@ class _FindItem {
 }
 
 function _debugFindOptions(options: FindOptions): void {
+    debug(`findOptions.allowBrokenSymbolicLinks: '${options.allowBrokenSymbolicLinks}'`);
     debug(`findOptions.followSpecifiedSymbolicLink: '${options.followSpecifiedSymbolicLink}'`);
     debug(`findOptions.followSymbolicLinks: '${options.followSymbolicLinks}'`);
 }
 
 function _getDefaultFindOptions(): FindOptions {
     return <FindOptions>{
+        allowBrokenSymbolicLinks: false,
         followSpecifiedSymbolicLink: true,
         followSymbolicLinks: true
     };
@@ -1545,19 +1595,33 @@ export interface ProxyConfiguration {
  *
  * @return  ProxyConfiguration
  */
-export function getHttpProxyConfiguration(): ProxyConfiguration {
+export function getHttpProxyConfiguration(requestUrl?: string): ProxyConfiguration {
     let proxyUrl: string = getVariable('Agent.ProxyUrl');
     if (proxyUrl && proxyUrl.length > 0) {
         let proxyUsername: string = getVariable('Agent.ProxyUsername');
         let proxyPassword: string = getVariable('Agent.ProxyPassword');
         let proxyBypassHosts: string[] = JSON.parse(getVariable('Agent.ProxyBypassList') || '[]');
 
-        return {
-            proxyUrl: proxyUrl,
-            proxyUsername: proxyUsername,
-            proxyPassword: proxyPassword,
-            proxyBypassHosts: proxyBypassHosts
-        };
+        let bypass: boolean = false;
+        if (requestUrl) {
+            proxyBypassHosts.forEach(bypassHost => {
+                if (new RegExp(bypassHost, 'i').test(requestUrl)) {
+                    bypass = true;
+                }
+            });
+        }
+
+        if (bypass) {
+            return null;
+        }
+        else {
+            return {
+                proxyUrl: proxyUrl,
+                proxyUsername: proxyUsername,
+                proxyPassword: proxyPassword,
+                proxyBypassHosts: proxyBypassHosts
+            };
+        }
     }
     else {
         return null;
@@ -1617,8 +1681,10 @@ export class TestPublisher {
 
     public testRunner: string;
 
-    public publish(resultFiles, mergeResults, platform, config, runTitle, publishRunAttachments) {
+    public publish(resultFiles, mergeResults, platform, config, runTitle, publishRunAttachments): void;
+    public publish(resultsFiles, mergeResults, platform, config, runTitle, publishRunAttachments, testRunSystem): void;
 
+    public publish(resultFiles, mergeResults, platform, config, runTitle, publishRunAttachments, testRunSystem = "VSTSTask") {
         var properties = <{ [key: string]: string }>{};
         properties['type'] = this.testRunner;
 
@@ -1645,6 +1711,8 @@ export class TestPublisher {
         if (resultFiles) {
             properties['resultFiles'] = resultFiles;
         }
+
+        properties['testRunSystem'] = testRunSystem;
 
         command('results.publish', properties, '');
     }
